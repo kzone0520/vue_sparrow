@@ -27156,17 +27156,24 @@ exports.default = {
             musicList: []
         };
     },
-
-    methods: {
-        changeSort: function changeSort(e) {}
-    },
     created: function created() {
         var _this = this;
 
-        this.$axios.get('http://api.apiopen.top/musicRankings').then(function (res) {
-            _this.musicList = res.data.result;
-        }).catch(function (err) {
-            console.log(err);
+        // this.$axios.get('http://api.apiopen.top/musicRankings').then(res=>{
+        //     this.musicList = res.data.result;
+        // }).catch(err=>{
+        //     console.log(err)
+        // })
+
+        this.$http.jsonp('https://query.yahooapis.com/v1/public/yql', {
+            params: {
+                q: "select * from json where url=\"http://api.apiopen.top/musicRankings\" ",
+                format: "json"
+            }
+        }).then(function (res) {
+            _this.musicList = res.body.query.results.json.result;
+        }, function (response) {
+            console.log("发送失败" + response.status);
         });
     }
 };
@@ -27765,10 +27772,30 @@ exports.default = {
     created: function created() {
         var _this = this;
 
+        /* this.type = this.$route.query.type;
+        this.song_id = this.$route.query.song_id;
+        this.$axios.get("http://api.apiopen.top/musicRankingsDetails?type="+this.type).then(res=>{
+            res.data.result.forEach(item => {
+                if (this.song_id === item.song_id){
+                    this.songDetail = item;
+                    // 将类别挂载到songDetail对象上，方便存储localStorage
+                    this.$set(this.songDetail,'type', this.type)
+                    return;
+                }
+            });
+        }).catch(err=>{
+            console.log(err)
+        }) */
+
         this.type = this.$route.query.type;
         this.song_id = this.$route.query.song_id;
-        this.$axios.get("http://api.apiopen.top/musicRankingsDetails?type=" + this.type).then(function (res) {
-            res.data.result.forEach(function (item) {
+        this.$http.jsonp('https://query.yahooapis.com/v1/public/yql', {
+            params: {
+                q: "select * from json where url=\"http://api.apiopen.top/musicRankingsDetails?type=" + this.type + "\" ",
+                format: "json"
+            }
+        }).then(function (res) {
+            res.body.query.results.json.result.forEach(function (item) {
                 if (_this.song_id === item.song_id) {
                     _this.songDetail = item;
                     // 将类别挂载到songDetail对象上，方便存储localStorage
@@ -27776,8 +27803,8 @@ exports.default = {
                     return;
                 }
             });
-        }).catch(function (err) {
-            console.log(err);
+        }, function (response) {
+            console.log("发送失败" + response.status);
         });
     }
 };
@@ -40957,66 +40984,54 @@ var render = function() {
       _c(
         "ul",
         _vm._l(_vm.musicList, function(msc) {
-          return _c(
-            "li",
-            {
-              key: msc.type,
-              staticClass: "fenlei",
-              on: {
-                click: function($event) {
-                  _vm.changeSort($event)
-                }
+          return _c("li", { key: msc.type, staticClass: "fenlei" }, [
+            _c("img", {
+              attrs: {
+                src: msc.pic_s210,
+                alt: msc.name,
+                height: "150",
+                width: "150"
               }
-            },
-            [
-              _c("img", {
-                attrs: {
-                  src: msc.pic_s210,
-                  alt: msc.name,
-                  height: "150",
-                  width: "150"
-                }
-              }),
-              _vm._v(" "),
-              _c(
-                "ul",
-                { staticClass: "song" },
-                _vm._l(msc.content, function(music, index) {
-                  return _c(
-                    "li",
-                    { key: index },
-                    [
-                      _c(
-                        "router-link",
-                        {
-                          attrs: {
-                            to: {
-                              name: "musicDetail",
-                              query: { type: msc.type, song_id: music.song_id }
-                            }
+            }),
+            _vm._v(" "),
+            _c(
+              "ul",
+              { staticClass: "song" },
+              _vm._l(msc.content, function(music, index) {
+                return _c(
+                  "li",
+                  { key: index },
+                  [
+                    _c(
+                      "router-link",
+                      {
+                        attrs: {
+                          to: {
+                            name: "musicDetail",
+                            query: { type: msc.type, song_id: music.song_id }
                           }
-                        },
-                        [
-                          _vm._v(
-                            "\n                        " +
-                              _vm._s(index + 1) +
-                              ". " +
-                              _vm._s(music.title) +
-                              " - " +
-                              _vm._s(music.author) +
-                              "\n                    "
-                          )
-                        ]
-                      )
-                    ],
-                    1
-                  )
-                })
-              ),
-              _vm._v(" "),
-              _c("hr")
-            ]
-          )
+                        }
+                      },
+                      [
+                        _vm._v(
+                          "\n                        " +
+                            _vm._s(index + 1) +
+                            ". " +
+                            _vm._s(music.title) +
+                            " - " +
+                            _vm._s(music.author) +
+                            "\n                    "
+                        )
+                      ]
+                    )
+                  ],
+                  1
+                )
+              })
+            ),
+            _vm._v(" "),
+            _c("hr")
+          ])
         })
       )
     ],
