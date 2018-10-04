@@ -26680,7 +26680,7 @@ exports.default = {
         getJsonp: function getJsonp(url, data) {
             var _this = this;
 
-            this.$http.jsonp('http://query.yahooapis.com/v1/public/yql', {
+            this.$http.jsonp('https://query.yahooapis.com/v1/public/yql', {
                 params: {
                     q: "select * from json where url=\"" + url + "\" ",
                     format: "json"
